@@ -3,8 +3,10 @@
 A compact toolkit to **predict relapse vs. control** of tumor spheroids from radiomics/time-series features (e.g., days 0–14) and to produce publication-ready figures used in the manuscript.
 
 It contains:
+
 [Figure 1.pdf](https://github.com/user-attachments/files/22549137/Figure.1.pdf)
 
+<img width="999" height="1209" alt="Screenshot 2025-09-26 004833" src="https://github.com/user-attachments/assets/c143a796-3398-48bf-9268-3b7b35b4557a" />
 
 
 - **`MLTimeSeriesModel.py`** – a configurable ML pipeline with variance filtering, scaling, **SMOTE**, multiple **feature-selection** strategies, and a zoo of classifiers; includes cross-validation with **95% CIs**, bootstrapped evaluation, probability-based ROC utilities, and global seed helpers for reproducibility.
