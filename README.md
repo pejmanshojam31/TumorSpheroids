@@ -3,6 +3,9 @@
 A compact toolkit to **predict relapse vs. control** of tumor spheroids from radiomics/time-series features (e.g., days 0–14) and to produce publication-ready figures used in the manuscript.
 
 It contains:
+[Figure 1.pdf](https://github.com/user-attachments/files/22549137/Figure.1.pdf)
+
+
 
 - **`MLTimeSeriesModel.py`** – a configurable ML pipeline with variance filtering, scaling, **SMOTE**, multiple **feature-selection** strategies, and a zoo of classifiers; includes cross-validation with **95% CIs**, bootstrapped evaluation, probability-based ROC utilities, and global seed helpers for reproducibility.
 - **`Visualization.py`** – a plotting suite for confusion matrices, ROC curves (with optimal threshold), probability distributions, **accuracy vs. Day-of-Relapse (DoR)** with weighted exponential fits, and stacked **SCP** (Share of Controlled Proportion) bar charts for treatment arms (dose, temperature, time).
