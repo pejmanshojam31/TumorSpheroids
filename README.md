@@ -1,4 +1,4 @@
-# Tumor Spheroid Time-Series ML & Visualization
+# Predicting treatment response of tumor spheroids from radiomics analysis of post-treatment dynamics
 
 A compact toolkit to **predict relapse vs. control** of tumor spheroids from radiomics/time-series features (e.g., days 0–14) and to produce publication-ready figures used in the manuscript.
 
