@@ -1,13 +1,10 @@
 # Predicting treatment response of tumor spheroids from radiomics analysis of post-treatment dynamics
 
-A compact toolkit to **predict relapse vs. control** of tumor spheroids from radiomics/time-series features (e.g., days 0–14) and to produce publication-ready figures used in the manuscript.
+This code is part of submission procedure to the GigaScience journal. With this code, you can reproduce the results and use it with the provided dataset.
+
+<img width="500" height="700" alt="Screenshot 2025-09-26 004833" src="https://github.com/user-attachments/assets/c143a796-3398-48bf-9268-3b7b35b4557a" />
 
 It contains:
-
-[Figure 1.pdf](https://github.com/user-attachments/files/22549137/Figure.1.pdf)
-
-<img width="500" height="800" alt="Screenshot 2025-09-26 004833" src="https://github.com/user-attachments/assets/c143a796-3398-48bf-9268-3b7b35b4557a" />
-
 
 - **`MLTimeSeriesModel.py`** – a configurable ML pipeline with variance filtering, scaling, **SMOTE**, multiple **feature-selection** strategies, and a zoo of classifiers; includes cross-validation with **95% CIs**, bootstrapped evaluation, probability-based ROC utilities, and global seed helpers for reproducibility.
 - **`Visualization.py`** – a plotting suite for confusion matrices, ROC curves (with optimal threshold), probability distributions, **accuracy vs. Day-of-Relapse (DoR)** with weighted exponential fits, and stacked **SCP** (Share of Controlled Proportion) bar charts for treatment arms (dose, temperature, time).
