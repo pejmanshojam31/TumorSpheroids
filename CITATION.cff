@@ -1,0 +1,9 @@
+cff-version: 1.2.0
+message: "If you use the dataset and codes, please cite them."
+title: "TumorSpheroids: Radiomics-based prediction of post-treatment spheroid relapse"
+version: "v1.0.0-giga"
+authors:
+  - family-names: Shojaee
+    given-names: Pejman
+repository-code: "https://github.com/pejmanshojam31/TumorSpheroids"
+license: MIT
