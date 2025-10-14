@@ -1,4 +1,4 @@
- # Title = Predicting treatment response of tumor spheroids from radiomics analysis of post-treatment dynamics
+ # Predicting treatment response of tumor spheroids from radiomics analysis of post-treatment dynamics
  contact: pejman.shojaee@htw-dresden.de
  
 This code is part of the submission procedure to the GigaScience journal. With this code, you can reproduce the results and use it with the provided dataset.
