@@ -1,5 +1,6 @@
-# Predicting treatment response of tumor spheroids from radiomics analysis of post-treatment dynamics
-
+ #Title = Predicting treatment response of tumor spheroids from radiomics analysis of post-treatment dynamics
+ contact:pejman.shojaee@htw-dresden.de
+ 
 This code is part of the submission procedure to the GigaScience journal. With this code, you can reproduce the results and use it with the provided dataset.
 
 <img width="500" height="700" alt="Screenshot 2025-09-26 004833" src="https://github.com/user-attachments/assets/c143a796-3398-48bf-9268-3b7b35b4557a" />
@@ -36,3 +37,8 @@ It contains:
 pip install -U numpy pandas scikit-learn imbalanced-learn xgboost matplotlib seaborn statsmodels
 # Optional (for deterministic seeding)
 pip install torch
+```
+
+Notes:
+- All CSVs in data/ are exactly those used in the manuscript models (training and test).
+- Splits used in the paper are under data/splits/.
