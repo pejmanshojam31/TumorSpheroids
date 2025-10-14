@@ -1,5 +1,5 @@
- #Title = Predicting treatment response of tumor spheroids from radiomics analysis of post-treatment dynamics
- contact:pejman.shojaee@htw-dresden.de
+ # Title = Predicting treatment response of tumor spheroids from radiomics analysis of post-treatment dynamics
+ contact: pejman.shojaee@htw-dresden.de
  
 This code is part of the submission procedure to the GigaScience journal. With this code, you can reproduce the results and use it with the provided dataset.
 
@@ -42,3 +42,7 @@ pip install torch
 Notes:
 - All CSVs in data/ are exactly those used in the manuscript models (training and test).
 - Splits used in the paper are under data/splits/.
+
+## maintainers
+- Pejman Shojaee ([@pejmanshojam31](https://github.com/pejmanshojam31)) — lead
+- Tom Bischopink ([@tomb556](https://github.com/tombk556))
