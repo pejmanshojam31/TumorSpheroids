@@ -2,7 +2,9 @@
  contact: pejman.shojaee@htw-dresden.de
  
  Affiliation: HTW Dresden – University of Applied Sciences
- 
+
+## Background
+
 This repository contains all scripts and workflows used in the study submitted to GigaScience.
 The project implements an AI-driven radiomics pipeline for predicting long-term relapse of tumor spheroids from early post-treatment brightfield image data.
 
