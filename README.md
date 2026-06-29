@@ -17,10 +17,9 @@ It contains:
 - **`Visualization.py`** – a plotting suite for confusion matrices, ROC curves (with optimal threshold), probability distributions, **accuracy vs. Day-of-Relapse (DoR)** with weighted exponential fits, and stacked **SCP** (Share of Controlled Proportion) bar charts for treatment arms (dose, temperature, time).
 - **`Manuscript_codes_fixed2.ipynb`** – an analysis notebook (used in the manuscript).
 
-While radiomics is routinely used in patient-level imaging, it has not yet been applied to three-dimensional (3D) multicellular tumor spheroids — a physiologically relevant in vitro model that recapitulates gradients of oxygen, nutrients, and therapy resistance observed in real tumors.
 
 Here, we present an end-to-end machine learning framework that predicts whether individual spheroids relapse or remain controlled, based solely on early post-treatment imaging features.
-Our workflow integrates radiomic feature extraction, feature selection, and classification models to infer long-term treatment outcomes.
+Our workflow integrates AI image analysis, feature extraction, feature selection, and classification models to infer long-term treatment outcomes.
 
 ## 📦 Installation
 
