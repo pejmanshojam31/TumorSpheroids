@@ -1,4 +1,4 @@
- # Predicting treatment response of tumor spheroids from radiomics analysis of post-treatment dynamics
+ # Predicting Treatment Response of Tumor Spheroids from AI-Driven Image Analysis of Post-Treatment Dynamics
  contact: pejman.shojaee@tu-dresden.de
  pejman.shojaee@htw-dresden.de
  
@@ -6,8 +6,7 @@
 
 ## Background
 
-This repository contains all scripts and workflows used in the study submitted to GigaScience.
-The project implements an AI-driven radiomics pipeline for predicting long-term relapse of tumor spheroids from early post-treatment brightfield image data.
+The project implements an AI-driven image analysis pipeline for predicting long-term relapse of tumor spheroids from early post-treatment brightfield image data.
 
 
 It contains:
