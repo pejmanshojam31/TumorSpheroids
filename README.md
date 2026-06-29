@@ -8,7 +8,6 @@
 This repository contains all scripts and workflows used in the study submitted to GigaScience.
 The project implements an AI-driven radiomics pipeline for predicting long-term relapse of tumor spheroids from early post-treatment brightfield image data.
 
-<img width="500" height="700" alt="Screenshot 2025-09-26 004833" src="https://github.com/user-attachments/assets/c143a796-3398-48bf-9268-3b7b35b4557a" />
 
 It contains:
 
