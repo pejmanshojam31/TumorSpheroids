@@ -1,5 +1,6 @@
  # Predicting treatment response of tumor spheroids from radiomics analysis of post-treatment dynamics
- contact: pejman.shojaee@htw-dresden.de
+ contact: pejman.shojaee@tu-dresden.de
+ pejman.shojaee@htw-dresden.de
  
  Affiliation: HTW Dresden – University of Applied Sciences
 
