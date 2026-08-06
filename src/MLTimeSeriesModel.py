@@ -31,6 +31,7 @@ from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.naive_bayes import GaussianNB
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.pipeline import Pipeline
+from sklearn.base import clone
 from imblearn.pipeline import Pipeline as ImbPipeline
 from imblearn.over_sampling import SMOTE
 from xgboost import XGBClassifier
@@ -67,16 +68,26 @@ def set_global_seed(seed: int = 42, deterministic_torch: bool = True):
 
 
 class MLTimeSeriesModel:
-    def __init__(self, feature_selection_methods=None, models=None, cv_folds=5, variance_threshold=0.01, seed: int = 42):
+    def __init__(self, feature_selection_methods=None, models=None, cv_folds=5, variance_threshold=1e-8,
+                 use_smote: bool = False, seed: int = 42):
         """
         Initialize the MLTimeSeriesModel class.
-        
+
         :param feature_selection_methods: Dictionary of feature selection options (name: method).
         :param models: Dictionary of ML models to choose from (name: model).
         :param cv_folds: Number of cross-validation folds (default is 5).
-        :param variance_threshold: Threshold for removing low-variance features (default is 0.01).
+        :param variance_threshold: Threshold for the pre-scaling variance filter. This step runs
+            BEFORE StandardScaler, so it must stay near zero (default 1e-8) to strip only exact/
+            near-constant features -- a non-trivial cutoff here would be scale-dependent, since
+            raw feature variances aren't comparable until after scaling. Real dimensionality
+            reduction belongs in feature_selection, which runs after the scaler.
+        :param use_smote: If True, insert a SMOTE oversampling step (after scaling, before feature
+            selection) into the pipeline. Defaults to False so the main pipeline never applies
+            SMOTE unless explicitly requested -- e.g. from a dedicated with/without SMOTE
+            comparison, run on the validation split.
         """
         self.seed = seed
+        self.use_smote = use_smote
         set_global_seed(seed)
         self.feature_selection_methods = feature_selection_methods or {
             "SelectKBest_f_classif": SelectKBest(score_func=f_classif, k=50),
@@ -141,20 +152,26 @@ class MLTimeSeriesModel:
 
     def build_pipeline(self):
         """
-        Build the preprocessing and modeling pipeline with SMOTE and variance filtering.
+        Build the preprocessing and modeling pipeline. SMOTE is included only when
+        self.use_smote is True (see __init__); the default pipeline has no resampling step.
         """
         if not self.feature_selector:
             raise ValueError("Feature selection method is not selected.")
         if not self.model:
             raise ValueError("Model is not selected.")
-        
-        self.pipeline = ImbPipeline([
-            ('low_variance_filter', VarianceThreshold(threshold=self.variance_threshold)),  # Remove low-variance features
+
+        steps = [
+            ('low_variance_filter', VarianceThreshold(threshold=self.variance_threshold)),  # Remove constant/near-constant features
             ('scaler', StandardScaler()),                # Scale the data
-            ('smote', SMOTE(random_state=42)),           # Handle class imbalance
-            ('feature_selection', self.feature_selector),  # Feature selection
-            ('model', self.model)                        # Model
-        ])
+        ]
+        if self.use_smote:
+            steps.append(('smote', SMOTE(random_state=self.seed)))  # Handle class imbalance (opt-in)
+        steps.append(('feature_selection', self.feature_selector))  # Feature selection
+        steps.append(('model', self.model))                         # Model
+
+        # imblearn's Pipeline is a drop-in superset of sklearn's, so it works whether or not
+        # a resampling step is present -- one pipeline class regardless of use_smote.
+        self.pipeline = ImbPipeline(steps)
     def cross_validate(self, X, y):
         """
         Perform cross-validation and return detailed per-fold information along with
@@ -200,25 +217,31 @@ class MLTimeSeriesModel:
             X_valid = get_subset(X, valid_index)
             y_train = get_subset(y, train_index)
             y_valid = get_subset(y, valid_index)
-            
-            # Fit the pipeline on the training fold.
-            self.pipeline.fit(X_train, y_train)
-            
+
+            # Fit an independent clone on this fold. Using self.pipeline directly would
+            # overwrite its fitted state on every iteration, so by the time the loop ends
+            # self.pipeline would only reflect the LAST fold rather than whatever it was fit
+            # on before cross_validate() was called (e.g. the full training set) -- any
+            # predict()/evaluate() call made afterwards would silently use that stale,
+            # partially-trained fold model instead.
+            fold_pipeline = clone(self.pipeline)
+            fold_pipeline.fit(X_train, y_train)
+
             # Get probabilities for AUC; fallback to decision_function if needed.
-            if hasattr(self.pipeline.named_steps['model'], "predict_proba"):
-                y_proba = self.pipeline.predict_proba(X_valid)[:, 1]
+            if hasattr(fold_pipeline.named_steps['model'], "predict_proba"):
+                y_proba = fold_pipeline.predict_proba(X_valid)[:, 1]
             else:
-                y_proba = self.pipeline.decision_function(X_valid)
-            
+                y_proba = fold_pipeline.decision_function(X_valid)
+
             fold_auc = roc_auc_score(y_valid, y_proba)
-            y_pred = self.pipeline.predict(X_valid)
+            y_pred = fold_pipeline.predict(X_valid)
             fold_accuracy = accuracy_score(y_valid, y_pred)
             fold_f1 = f1_score(y_valid, y_pred, average='weighted')
-            
+
             auc_scores.append(fold_auc)
             accuracy_scores.append(fold_accuracy)
             f1_scores.append(fold_f1)
-            
+
             fold_details.append({
                 'Fold': fold,
                 'Train_Count': len(train_index),
@@ -227,16 +250,16 @@ class MLTimeSeriesModel:
                 'Accuracy': fold_accuracy,
                 'F1': fold_f1
             })
-        
+
         # Function to compute mean, std, and 95% confidence interval for a list of scores.
-            def compute_stats(scores_list):
-                mean_val = np.mean(scores_list)
-                std_val = np.std(scores_list, ddof=1)
-                n = len(scores_list)
-                t_critical = t.ppf((1 + 0.95) / 2, n - 1)
-                margin_error = t_critical * sem(scores_list)
-                ci = (mean_val - margin_error, mean_val + margin_error)
-                return mean_val, std_val, ci
+        def compute_stats(scores_list):
+            mean_val = np.mean(scores_list)
+            std_val = np.std(scores_list, ddof=1)
+            n = len(scores_list)
+            t_critical = t.ppf((1 + 0.95) / 2, n - 1)
+            margin_error = t_critical * sem(scores_list)
+            ci = (mean_val - margin_error, mean_val + margin_error)
+            return mean_val, std_val, ci
 
         mean_auc, std_auc, auc_ci = compute_stats(auc_scores)
         mean_acc, std_acc, acc_ci = compute_stats(accuracy_scores)

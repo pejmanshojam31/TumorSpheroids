@@ -1,3 +1,5 @@
+from __future__ import annotations  # this file's "X | None" annotations need Python 3.10+ without this
+
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.metrics import roc_curve, auc, precision_recall_curve, confusion_matrix
@@ -92,14 +94,22 @@ class Visualization:
         plt.xticks(fontsize=24, fontweight="bold", rotation=0)
         plt.yticks(fontsize=24, fontweight="bold", rotation=0)
 
-        plt.savefig(r"E:\Project_HTWD\revised 8\Figure 5A.pdf",
+        plt.savefig(os.path.join(self.output_dir, "Figure 5A.pdf"),
                     format="pdf", bbox_inches="tight", dpi=300)
         plt.show()
 
 
-    def plot_roc_curve(self, title="ROC Curve"):
+    def plot_roc_curve(self, title="ROC Curve", frozen_threshold: float | None = None):
         """
-        Plot the ROC curve, calculate AUC, and store the best threshold and predictions.
+        Plot the ROC curve, and store the operating threshold + the predictions it implies.
+
+        :param frozen_threshold: If given, this threshold is used as-is (e.g. the Youden's-J
+            optimum computed earlier on a separate validation split) -- self.y_true/self.y_proba
+            are only used to draw the curve and locate this point on it, never to choose it.
+            If omitted, falls back to picking the Youden's-J-optimal threshold directly from
+            self.y_true/self.y_proba, which is only appropriate when those are validation (not
+            test) data -- otherwise the threshold ends up tuned on the same labels it's later
+            scored against.
         """
         if self.y_proba is None:
             print("ROC Curve requires prediction probabilities.")
@@ -108,12 +118,19 @@ class Visualization:
         fpr, tpr, thresholds = roc_curve(self.y_true, self.y_proba)
         roc_auc = auc(fpr, tpr)
 
-        # Find best threshold using Youden's J statistic
-        j_scores = tpr - fpr
-        best_idx = np.argmax(j_scores)
-        best_fpr = fpr[best_idx]
-        best_tpr = tpr[best_idx]
-        best_threshold = thresholds[best_idx]
+        if frozen_threshold is not None:
+            best_threshold = frozen_threshold
+            # Locate the ROC point closest to the frozen threshold, just to mark it on the plot.
+            best_idx = int(np.argmin(np.abs(thresholds - best_threshold)))
+            best_fpr = fpr[best_idx]
+            best_tpr = tpr[best_idx]
+        else:
+            # Find best threshold using Youden's J statistic
+            j_scores = tpr - fpr
+            best_idx = np.argmax(j_scores)
+            best_fpr = fpr[best_idx]
+            best_tpr = tpr[best_idx]
+            best_threshold = thresholds[best_idx]
 
         # Store best threshold and predictions using it
         self.best_threshold = best_threshold
@@ -126,7 +143,8 @@ class Visualization:
         plt.axvline(x=best_fpr, linestyle='--', color='grey', lw=2)
         plt.axhline(y=best_tpr, linestyle='--', color='grey', lw=2)
         # Make the dot for the threshold bigger (s=180)
-        plt.scatter([best_fpr], [best_tpr], color='red', s=180, zorder=5, label=f'Best Threshold = {best_threshold:.2f}')
+        threshold_label = 'Validation Threshold' if frozen_threshold is not None else 'Best Threshold'
+        plt.scatter([best_fpr], [best_tpr], color='red', s=180, zorder=5, label=f'{threshold_label} = {best_threshold:.2f}')
 
         plt.xlabel('False Positive Rate', fontsize=31, fontweight="bold", labelpad=30)
         plt.ylabel('True Positive Rate', fontsize=31, fontweight="bold", labelpad=30)
@@ -135,7 +153,7 @@ class Visualization:
         plt.legend(loc="lower right", prop={'size': 22, 'weight': 'bold'},frameon=False)
         plt.grid(True, linestyle='--', alpha=0.5)
 
-        plt.savefig(r"E:\Project_HTWD\revised 8\Figure 7B.pdf", format="pdf", bbox_inches="tight", dpi=300)
+        plt.savefig(os.path.join(self.output_dir, "Figure 7B.pdf"), format="pdf", bbox_inches="tight", dpi=300)
         plt.show()
 
     
@@ -183,7 +201,7 @@ class Visualization:
         plt.xticks(fontsize=14, fontweight="bold")
         plt.yticks(fontsize=14, fontweight="bold")
         plt.legend(fontsize=12)
-        plt.savefig("Prediction Probability Distribution_300dpi.pdf", format="pdf", bbox_inches="tight", dpi=300)
+        plt.savefig(os.path.join(self.output_dir, "Prediction Probability Distribution_300dpi.pdf"), format="pdf", bbox_inches="tight", dpi=300)
         plt.show()
 
     def plot_feature_importances(self, model, feature_names=None, top_n=20, title="Feature Importances"):
@@ -215,7 +233,7 @@ class Visualization:
             plt.ylabel("Feature", fontsize=16, fontweight="bold")
             plt.xticks(fontsize=14, fontweight="bold")
             plt.yticks(fontsize=14, fontweight="bold")
-            plt.savefig("feature_importance_300dpi.pdf", format="pdf", bbox_inches="tight", dpi=300)
+            plt.savefig(os.path.join(self.output_dir, "feature_importance_300dpi.pdf"), format="pdf", bbox_inches="tight", dpi=300)
             plt.show()
 
         except Exception as e:
